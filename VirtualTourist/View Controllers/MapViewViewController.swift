@@ -90,7 +90,7 @@ class MapViewViewController: UIViewController, MKMapViewDelegate {
             }
         }
         
-        
+        mapView.deselectAnnotation(annotationPin, animated: true)
         performSegue(withIdentifier: "ShowPhotoAlbum", sender: self)
     }
     

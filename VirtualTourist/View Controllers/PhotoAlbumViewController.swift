@@ -145,6 +145,12 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
         return cell
     }
     
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let photoToDelete = fetchedResultsController.object(at: indexPath)
+        dataController.viewContext.delete(photoToDelete)
+        try? dataController.viewContext.save()
+    }
+    
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         
         let reuseId = "pin"
