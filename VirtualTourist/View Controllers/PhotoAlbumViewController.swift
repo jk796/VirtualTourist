@@ -26,6 +26,8 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
     
     @IBOutlet weak var collectionView: UICollectionView!
     
+    @IBOutlet weak var flowLayout: UICollectionViewFlowLayout!
+    
     @IBOutlet weak var newCollectionButton: UIButton!
     
     fileprivate func setUpFetchedResultsController() {
@@ -48,6 +50,15 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        // Configure flowLayout
+        let space:CGFloat = 1.0
+        let dimension = (view.frame.size.width - (2 * space)) / 3.0
+        
+        flowLayout.minimumInteritemSpacing = space
+        flowLayout.minimumLineSpacing = space
+        flowLayout.itemSize = CGSize(width: dimension, height: dimension)
+        
         self.navigationController?.isNavigationBarHidden = false
         // Do any additional setup after loading the view.
         mapView.delegate = self
@@ -129,7 +140,6 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PhotoCell", for: indexPath) as! PhotoCollectionViewCell
-        
         cell.imageView.image = UIImage(data: fetchedResultsController.object(at: indexPath).imageData!)
         
         return cell
@@ -163,18 +173,6 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
     @IBAction func newCollectionButtonTapped(_ sender: Any) {
         downloadPhotos()
     }
-    
-    
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
 
 }
 

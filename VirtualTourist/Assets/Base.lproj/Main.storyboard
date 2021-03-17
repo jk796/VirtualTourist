@@ -51,7 +51,7 @@
                                 <rect key="frame" x="0.0" y="312" width="414" height="550"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
-                                <collectionViewFlowLayout key="collectionViewLayout" automaticEstimatedItemSize="YES" minimumLineSpacing="10" minimumInteritemSpacing="10" id="ilP-1A-ye3">
+                                <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="ilP-1A-ye3">
                                     <size key="itemSize" width="50" height="50"/>
                                     <size key="headerReferenceSize" width="0.0" height="0.0"/>
                                     <size key="footerReferenceSize" width="0.0" height="0.0"/>
@@ -65,11 +65,16 @@
                                             <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="vzI-2l-fMo">
+                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="vzI-2l-fMo">
                                                     <rect key="frame" x="-95" y="-39" width="240" height="128"/>
-                                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                 </imageView>
                                             </subviews>
+                                            <constraints>
+                                                <constraint firstAttribute="bottom" secondItem="vzI-2l-fMo" secondAttribute="bottom" constant="-39" id="AVa-C9-rz6"/>
+                                                <constraint firstItem="vzI-2l-fMo" firstAttribute="leading" secondItem="T88-DV-8er" secondAttribute="leading" constant="-95" id="CPw-e5-79B"/>
+                                                <constraint firstAttribute="trailing" secondItem="vzI-2l-fMo" secondAttribute="trailing" constant="-95" id="iaz-FG-S1B"/>
+                                                <constraint firstItem="vzI-2l-fMo" firstAttribute="top" secondItem="T88-DV-8er" secondAttribute="top" constant="-39" id="vlI-cv-PtE"/>
+                                            </constraints>
                                         </collectionViewCellContentView>
                                         <connections>
                                             <outlet property="imageView" destination="vzI-2l-fMo" id="Fbd-zP-Ugu"/>
@@ -94,6 +99,7 @@
                     <navigationItem key="navigationItem" id="Lob-lQ-jas"/>
                     <connections>
                         <outlet property="collectionView" destination="JKr-gH-oGW" id="QRv-Le-J78"/>
+                        <outlet property="flowLayout" destination="ilP-1A-ye3" id="K5h-aL-x8m"/>
                         <outlet property="mapView" destination="9oB-nq-JZR" id="8cU-Bd-Rbm"/>
                         <outlet property="newCollectionButton" destination="wVY-Kd-QON" id="wWE-fi-Avo"/>
                     </connections>
