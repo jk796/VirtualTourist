@@ -10,20 +10,41 @@ import UIKit
 import MapKit
 import CoreData
 
-class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectionViewDelegate, UICollectionViewDataSource {
+class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectionViewDelegate, UICollectionViewDataSource, NSFetchedResultsControllerDelegate {
     
     var dataController: DataController!
     
+    var fetchedResultsController: NSFetchedResultsController<Photo>!
+    
     var pin: Pin?
     
-    var photos = [Photo]()
+    //var photos = [Photo]()
     
     var coordinate: CLLocationCoordinate2D!
     
     @IBOutlet weak var mapView: MKMapView!
+    
     @IBOutlet weak var collectionView: UICollectionView!
     
     @IBOutlet weak var newCollectionButton: UIButton!
+    
+    fileprivate func setUpFetchedResultsController() {
+        // Instantiate fetchedResultsController
+        let fetchRequest: NSFetchRequest<Photo> = Photo.fetchRequest()
+        let predicate = NSPredicate(format: "pin == %@", pin!)
+        fetchRequest.predicate = predicate
+        let sortDescriptor = NSSortDescriptor(key: "creationDate", ascending: false)
+        fetchRequest.sortDescriptors = [sortDescriptor]
+        
+        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: nil)
+        fetchedResultsController.delegate = self
+        
+        do {
+            try fetchedResultsController.performFetch()
+        } catch {
+            fatalError("The fetch could not be performed: \(error.localizedDescription)")
+        }
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -40,25 +61,16 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
         let annotation = MKPointAnnotation()
         annotation.coordinate = coordinate
         self.mapView.addAnnotation(annotation)
-
+        
+        self.collectionView.delegate = self
+        self.collectionView.dataSource = self
         
     }
-
-    
-    
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        let fetchRequest :NSFetchRequest<Photo> = Photo.fetchRequest()
-        let predicate = NSPredicate(format: "pin == %@", pin!)
-        fetchRequest.predicate = predicate
-        let sortDescriptor = NSSortDescriptor(key: "creationDate", ascending: true)
-        fetchRequest.sortDescriptors = [sortDescriptor]
-        
-        if let result = try? dataController.viewContext.fetch(fetchRequest) {
-            photos = result
-        }
+        setUpFetchedResultsController()
         
         if pin!.firstTimeOpen == true {
             pin!.firstTimeOpen = false
@@ -67,8 +79,11 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
             collectionView.delegate = self
             collectionView.dataSource = self
         }
-        
-        
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        fetchedResultsController = nil
     }
     
     fileprivate func downloadPhotos() {
@@ -84,7 +99,12 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
                         self.showFailure(message: error!.localizedDescription)
                         print("\(error?.localizedDescription)")
                     } else {
-                        self.photos.removeAll(keepingCapacity: false)
+                        if let photos = self.fetchedResultsController.fetchedObjects {
+                            for photo in photos {
+                                self.dataController.viewContext.delete(photo)
+                                try? self.dataController.viewContext.save()
+                            }
+                        }
                         for photoResponse in (pagedPhotosResponse?.photos.photo)! {
                             let photo = Photo(context: self.dataController.viewContext)
                             let imageURL = URL(string: photoResponse.url_q!)
@@ -92,11 +112,10 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
                             photo.imageData = imageData
                             photo.creationDate = Date()
                             photo.pin = self.pin
-                            self.photos.append(photo)
+                            try? self.dataController.viewContext.save()
                         }
-                        self.collectionView.delegate = self
-                        self.collectionView.dataSource = self
                         self.collectionView.reloadData()
+                       // self.collectionView.numberOfItems(inSection: 0)
                     }
                 }
             }
@@ -104,14 +123,14 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return photos.count
+        return fetchedResultsController.sections?[section].numberOfObjects ?? 0
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PhotoCell", for: indexPath) as! PhotoCollectionViewCell
         
-        cell.imageView.image = UIImage(data: photos[indexPath.row].imageData!)
+        cell.imageView.image = UIImage(data: fetchedResultsController.object(at: indexPath).imageData!)
         
         return cell
     }
@@ -143,7 +162,6 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
     
     @IBAction func newCollectionButtonTapped(_ sender: Any) {
         downloadPhotos()
-        collectionView.reloadData()
     }
     
     
@@ -158,4 +176,18 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
     }
     */
 
+}
+
+
+extension PhotoAlbumViewController {
+    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
+        switch type {
+        case .insert:
+            collectionView.insertItems(at: [newIndexPath!])
+        case .delete:
+            collectionView.deleteItems(at: [indexPath!])
+        default:
+            break
+        }
+    }
 }
