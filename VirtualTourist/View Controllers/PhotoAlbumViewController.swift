@@ -18,8 +18,6 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
     
     var pin: Pin?
     
-    //var photos = [Photo]()
-    
     var coordinate: CLLocationCoordinate2D!
     
     @IBOutlet weak var mapView: MKMapView!
@@ -73,8 +71,8 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
         annotation.coordinate = coordinate
         self.mapView.addAnnotation(annotation)
         
-        self.collectionView.delegate = self
-        self.collectionView.dataSource = self
+        collectionView.delegate = self
+        collectionView.dataSource = self
         
     }
     
@@ -84,8 +82,8 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
         setUpFetchedResultsController()
         
         if pin!.firstTimeOpen == true {
-            pin!.firstTimeOpen = false
             downloadPhotos()
+            pin?.firstTimeOpen = false
         } else {
             collectionView.delegate = self
             collectionView.dataSource = self
@@ -97,36 +95,39 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
         fetchedResultsController = nil
     }
     
+    fileprivate func deletePhotos() {
+        if let photos = self.fetchedResultsController.fetchedObjects {
+            for photo in photos {
+                self.dataController.viewContext.delete(photo)
+                try? self.dataController.viewContext.save()
+            }
+        }
+    }
+    
     fileprivate func downloadPhotos() {
         FlickrClient.getTotalNumberOfPhotos(coordinate: coordinate) { (totalNumber, error) in
             if error != nil {
                 self.showFailure(message: error!.localizedDescription)
             } else {
                 let totalNumberInt = Int(totalNumber!)
-                let randomPageNumber = String(Int.random(in: 1...(totalNumberInt!/15)))
+                let randomPageNumber = String(Int.random(in: 0...(totalNumberInt!/15))+1)
                 // Load photos of selected location
                 FlickrClient.getPhotos(randomPage: randomPageNumber, coordinate: self.coordinate) { (pagedPhotosResponse, error) in
                     if error != nil {
                         self.showFailure(message: error!.localizedDescription)
                         print("\(error?.localizedDescription)")
                     } else {
-                        if let photos = self.fetchedResultsController.fetchedObjects {
-                            for photo in photos {
-                                self.dataController.viewContext.delete(photo)
-                                try? self.dataController.viewContext.save()
-                            }
-                        }
                         for photoResponse in (pagedPhotosResponse?.photos.photo)! {
                             let photo = Photo(context: self.dataController.viewContext)
-                            let imageURL = URL(string: photoResponse.url_q!)
-                            let imageData = try! Data(contentsOf: imageURL!)
-                            photo.imageData = imageData
+//                            let imageURL = URL(string: photoResponse.url_q!)
+//                            let imageData = try! Data(contentsOf: imageURL!)
                             photo.creationDate = Date()
                             photo.pin = self.pin
+                            photo.imageData = nil
+                            photo.imageURL = photoResponse.url_q
                             try? self.dataController.viewContext.save()
                         }
                         self.collectionView.reloadData()
-                       // self.collectionView.numberOfItems(inSection: 0)
                     }
                 }
             }
@@ -140,8 +141,23 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PhotoCell", for: indexPath) as! PhotoCollectionViewCell
-        cell.imageView.image = UIImage(data: fetchedResultsController.object(at: indexPath).imageData!)
         
+        if fetchedResultsController.object(at: indexPath).imageData != nil {
+            cell.imageView.image = UIImage(data: fetchedResultsController.object(at: indexPath).imageData!)
+        } else {
+            cell.imageView.image = UIImage(named: "placeholder")
+            DispatchQueue.global().async {
+                FlickrClient.downloadImage(imageURL: URL(string: self.fetchedResultsController.object(at: indexPath).imageURL!)!) { (data, error) in
+                    if error != nil {
+                        self.showFailure(message: error!.localizedDescription)
+                    } else {
+                        cell.imageView.image = UIImage(data: data!)
+                        self.fetchedResultsController.object(at: indexPath).imageData = data
+                        try? self.dataController.viewContext.save()
+                    }
+                }
+            }
+        }
         return cell
     }
     
@@ -177,6 +193,7 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
     }
     
     @IBAction func newCollectionButtonTapped(_ sender: Any) {
+        deletePhotos()
         downloadPhotos()
     }
 

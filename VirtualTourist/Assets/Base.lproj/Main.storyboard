@@ -65,18 +65,26 @@
                                             <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
+                                                <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="KLP-MT-YgK">
+                                                    <rect key="frame" x="15" y="15" width="20" height="20"/>
+                                                </activityIndicatorView>
                                                 <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="vzI-2l-fMo">
                                                     <rect key="frame" x="-95" y="-39" width="240" height="128"/>
                                                 </imageView>
                                             </subviews>
                                             <constraints>
+                                                <constraint firstAttribute="bottom" secondItem="KLP-MT-YgK" secondAttribute="bottom" constant="15" id="0gE-0y-4S8"/>
+                                                <constraint firstItem="KLP-MT-YgK" firstAttribute="top" secondItem="T88-DV-8er" secondAttribute="top" constant="15" id="8Wh-fR-JfT"/>
                                                 <constraint firstAttribute="bottom" secondItem="vzI-2l-fMo" secondAttribute="bottom" constant="-39" id="AVa-C9-rz6"/>
                                                 <constraint firstItem="vzI-2l-fMo" firstAttribute="leading" secondItem="T88-DV-8er" secondAttribute="leading" constant="-95" id="CPw-e5-79B"/>
+                                                <constraint firstAttribute="trailing" secondItem="KLP-MT-YgK" secondAttribute="trailing" constant="15" id="LhU-D2-mon"/>
+                                                <constraint firstItem="KLP-MT-YgK" firstAttribute="leading" secondItem="T88-DV-8er" secondAttribute="leading" constant="15" id="YKT-ev-452"/>
                                                 <constraint firstAttribute="trailing" secondItem="vzI-2l-fMo" secondAttribute="trailing" constant="-95" id="iaz-FG-S1B"/>
                                                 <constraint firstItem="vzI-2l-fMo" firstAttribute="top" secondItem="T88-DV-8er" secondAttribute="top" constant="-39" id="vlI-cv-PtE"/>
                                             </constraints>
                                         </collectionViewCellContentView>
                                         <connections>
+                                            <outlet property="activityIndicator" destination="KLP-MT-YgK" id="2Te-f3-Jjm"/>
                                             <outlet property="imageView" destination="vzI-2l-fMo" id="Fbd-zP-Ugu"/>
                                         </connections>
                                     </collectionViewCell>
