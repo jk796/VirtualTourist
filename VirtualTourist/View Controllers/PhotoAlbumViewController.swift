@@ -101,6 +101,7 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
                 self.dataController.viewContext.delete(photo)
                 try? self.dataController.viewContext.save()
             }
+            downloadPhotos()
         }
     }
     
@@ -110,7 +111,7 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
                 self.showFailure(message: error!.localizedDescription)
             } else {
                 let totalNumberInt = Int(totalNumber!)
-                let randomPageNumber = String(Int.random(in: 0...(totalNumberInt!/15))+1)
+                let randomPageNumber = String(Int.random(in: 0...(totalNumberInt!/9))+1)
                 // Load photos of selected location
                 FlickrClient.getPhotos(randomPage: randomPageNumber, coordinate: self.coordinate) { (pagedPhotosResponse, error) in
                     if error != nil {
@@ -127,7 +128,6 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
                             photo.imageURL = photoResponse.url_q
                             try? self.dataController.viewContext.save()
                         }
-                        self.collectionView.reloadData()
                     }
                 }
             }
@@ -194,7 +194,6 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
     
     @IBAction func newCollectionButtonTapped(_ sender: Any) {
         deletePhotos()
-        downloadPhotos()
     }
 
 }

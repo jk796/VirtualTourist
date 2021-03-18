@@ -42,7 +42,7 @@ class FlickrClient {
     class func getPhotos(randomPage:String, coordinate: CLLocationCoordinate2D, completion: @escaping(PagedPhotosResponse?, Error?) -> Void) {
         let latitude = String(coordinate.latitude)
         let longitude = String(coordinate.longitude)
-        let task = URLSession.shared.dataTask(with: URL(string: "https://www.flickr.com/services/rest/?method=flickr.photos.search&api_key=\(apiKey)&lat=\(latitude)&lon=\(longitude)&radius=5&per_page=15&page=\(randomPage)&format=json&nojsoncallback=1&extras=url_q")!) { (data, response, error) in
+        let task = URLSession.shared.dataTask(with: URL(string: "https://www.flickr.com/services/rest/?method=flickr.photos.search&api_key=\(apiKey)&lat=\(latitude)&lon=\(longitude)&radius=5&per_page=9&page=\(randomPage)&format=json&nojsoncallback=1&extras=url_q")!) { (data, response, error) in
             guard let data = data else {
                 DispatchQueue.main.async {
                     completion(nil, error)
