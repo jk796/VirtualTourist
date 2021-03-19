@@ -27,14 +27,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let mapViewViewController = navigationController.topViewController as! MapViewViewController
         mapViewViewController.dataController = dataController
         
-        // delete all instances of pin for testing purposes
-        let fetchRequest: NSFetchRequest<NSFetchRequestResult> = Pin.fetchRequest()
-        let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
-        try? dataController.persistentContainer.persistentStoreCoordinator.execute(deleteRequest, with: dataController.viewContext)
-        // delete all instances of Photo for testing purposes
-        let fetchRequest2: NSFetchRequest<NSFetchRequestResult> = Photo.fetchRequest()
-        let deleteRequest2 = NSBatchDeleteRequest(fetchRequest: fetchRequest2)
-        try? dataController.persistentContainer.persistentStoreCoordinator.execute(deleteRequest2, with: dataController.viewContext)
+//        // delete all instances of pin for testing purposes
+//        let fetchRequest: NSFetchRequest<NSFetchRequestResult> = Pin.fetchRequest()
+//        let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
+//        try? dataController.persistentContainer.persistentStoreCoordinator.execute(deleteRequest, with: dataController.viewContext)
+//        // delete all instances of Photo for testing purposes
+//        let fetchRequest2: NSFetchRequest<NSFetchRequestResult> = Photo.fetchRequest()
+//        let deleteRequest2 = NSBatchDeleteRequest(fetchRequest: fetchRequest2)
+//        try? dataController.persistentContainer.persistentStoreCoordinator.execute(deleteRequest2, with: dataController.viewContext)
         
     }
 
